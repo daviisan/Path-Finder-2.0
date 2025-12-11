@@ -1,0 +1,7 @@
+{
+  "name": "Final PathFinder",
+  "description": "An empathetic AI assistant that simplifies USCIS notices and legal documents into clear, human-friendly summaries.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
