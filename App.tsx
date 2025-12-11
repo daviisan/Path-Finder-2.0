@@ -1,4 +1,5 @@
 
+
 import React, { useState, useRef, useEffect } from 'react';
 import { analyzeDocument } from './services/geminiService';
 import { AnalysisResult, Language } from './types';
@@ -125,7 +126,7 @@ const App: React.FC = () => {
 
   // Cycle through loading steps during analysis
   useEffect(() => {
-    let interval: NodeJS.Timeout;
+    let interval: any;
     if (isAnalyzing) {
       setLoadingStep(0);
       interval = setInterval(() => {
@@ -140,7 +141,17 @@ const App: React.FC = () => {
 
   // Validation Helper
   const validateFile = (selectedFile: File): boolean => {
-    const validTypes = ['application/pdf', 'image/png', 'image/jpeg', 'image/jpg', 'image/webp'];
+    // Expanded list of valid image types
+    const validTypes = [
+        'application/pdf', 
+        'image/png', 
+        'image/jpeg', 
+        'image/jpg', 
+        'image/webp',
+        'image/bmp',
+        'image/gif',
+        'image/tiff'
+    ];
     if (!validTypes.includes(selectedFile.type)) {
       setError(language === 'es' ? "Tipo de archivo no válido. Use PDF o Imagen." : "Invalid file type. Please use PDF or Image.");
       setFile(null);
@@ -186,6 +197,14 @@ const App: React.FC = () => {
     setError(null);
     try {
       const res = await analyzeDocument(data.base64, data.mimeType, lang);
+      
+      // Validation Check
+      if (!res.isImmigrationDocument) {
+        setResult(null);
+        setError(t.errorNotImmigrationDoc);
+        return;
+      }
+
       setResult(res);
     } catch (err) {
       console.error(err);
@@ -340,29 +359,43 @@ const App: React.FC = () => {
                 </div>
               ) : file ? (
                 <div className="py-8 w-full">
-                  {/* File Icon with Success Badge */}
+                  {/* File Icon with Status Badge */}
                   <div className="relative inline-block mx-auto mb-4">
-                     <div className="w-20 h-20 bg-green-100 text-green-600 rounded-2xl flex items-center justify-center shadow-sm">
+                     <div className={`w-20 h-20 rounded-2xl flex items-center justify-center shadow-sm ${error ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'}`}>
                         {file.type.includes('image') ? (
                            <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
                         ) : (
                            <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
                         )}
                      </div>
-                     <div className="absolute -top-2 -right-2 bg-green-500 text-white rounded-full p-1 border-4 border-white shadow-md animate-fade-in">
-                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+                     <div className={`absolute -top-2 -right-2 text-white rounded-full p-1 border-4 border-white shadow-md animate-fade-in ${error ? 'bg-red-500' : 'bg-green-500'}`}>
+                       {error ? (
+                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                       ) : (
+                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+                       )}
                      </div>
                   </div>
 
                   <p className="font-semibold text-lg text-slate-800 mb-1 truncate px-4 flex items-center justify-center gap-2">
                     {file.name}
-                    <span className="text-green-600" aria-label="Accepted">
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    <span className={error ? "text-red-600" : "text-green-600"} aria-label={error ? "Rejected" : "Accepted"}>
+                      {error ? (
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                      ) : (
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                      )}
                     </span>
                   </p>
-                  <p className="text-sm text-slate-500 mb-8">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
+                  <p className="text-sm text-slate-500 mb-2">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
+
+                  {error && (
+                    <p className="text-red-600 font-bold text-sm mb-6 px-4 animate-fade-in bg-red-50 py-2 rounded-lg mx-4 border border-red-100">
+                      {error}
+                    </p>
+                  )}
                   
-                  <div className="flex flex-col gap-3 max-w-xs mx-auto">
+                  <div className={`flex flex-col gap-3 max-w-xs mx-auto ${error ? 'mt-0' : 'mt-8'}`}>
                     <button 
                       onClick={(e) => {
                         e.stopPropagation();
@@ -371,7 +404,7 @@ const App: React.FC = () => {
                       className="bg-calm-600 hover:bg-calm-700 text-white font-medium py-3.5 px-8 rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-calm-600"
                     >
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" /></svg>
-                      {t.analyzeNow}
+                      {error ? "Try Again" : t.analyzeNow}
                     </button>
                     <button
                       onClick={(e) => {
@@ -440,6 +473,39 @@ const App: React.FC = () => {
                 <p className="font-medium text-slate-800">{t.missionBody3}</p>
              </div>
           </article>
+        )}
+
+        {/* FAQ Section */}
+        {!result && (
+          <section className="mt-16 max-w-4xl mx-auto px-4" aria-labelledby="faq-heading">
+            <h2 id="faq-heading" className="text-2xl font-bold text-slate-800 mb-8 text-center">{t.faqTitle}</h2>
+            <div className="grid gap-6 md:grid-cols-2">
+              <div className="bg-white/60 backdrop-blur-sm p-6 rounded-2xl border border-white/50 shadow-sm hover:bg-white/70 transition-colors">
+                <h3 className="font-bold text-slate-800 mb-2 flex items-start gap-2">
+                  <span className="text-calm-500 mt-0.5">?</span> {t.faqQ1}
+                </h3>
+                <p className="text-slate-600 text-sm leading-relaxed">{t.faqA1}</p>
+              </div>
+              <div className="bg-white/60 backdrop-blur-sm p-6 rounded-2xl border border-white/50 shadow-sm hover:bg-white/70 transition-colors">
+                <h3 className="font-bold text-slate-800 mb-2 flex items-start gap-2">
+                   <span className="text-calm-500 mt-0.5">?</span> {t.faqQ2}
+                </h3>
+                <p className="text-slate-600 text-sm leading-relaxed">{t.faqA2}</p>
+              </div>
+               <div className="bg-white/60 backdrop-blur-sm p-6 rounded-2xl border border-white/50 shadow-sm hover:bg-white/70 transition-colors">
+                <h3 className="font-bold text-slate-800 mb-2 flex items-start gap-2">
+                   <span className="text-calm-500 mt-0.5">?</span> {t.faqQ3}
+                </h3>
+                <p className="text-slate-600 text-sm leading-relaxed">{t.faqA3}</p>
+              </div>
+               <div className="bg-white/60 backdrop-blur-sm p-6 rounded-2xl border border-white/50 shadow-sm hover:bg-white/70 transition-colors">
+                <h3 className="font-bold text-slate-800 mb-2 flex items-start gap-2">
+                   <span className="text-calm-500 mt-0.5">?</span> {t.faqQ4}
+                </h3>
+                <p className="text-slate-600 text-sm leading-relaxed">{t.faqA4}</p>
+              </div>
+            </div>
+          </section>
         )}
 
         {/* Trust Footer */}

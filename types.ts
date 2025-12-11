@@ -14,6 +14,7 @@ export interface SimplifiedTerm {
 }
 
 export interface AnalysisResult {
+  isImmigrationDocument: boolean;
   documentType: string;
   whatIsThis: string;
   actionItems: string;

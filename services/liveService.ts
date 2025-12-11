@@ -1,3 +1,4 @@
+
 import { GoogleGenAI, LiveServerMessage, Modality } from '@google/genai';
 
 // Audio utilities
@@ -151,7 +152,7 @@ export class LiveSession {
             voiceConfig: { prebuiltVoiceConfig: { voiceName: 'Kore' } }
           },
           systemInstruction: systemInstruction,
-          tools: [{ googleSearch: {} }]
+          tools: [{ googleSearch: {} }],
         }
       });
       

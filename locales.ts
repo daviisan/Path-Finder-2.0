@@ -1,4 +1,5 @@
 
+
 export type Language = 'en' | 'es';
 
 export const translations = {
@@ -26,6 +27,7 @@ export const translations = {
     analyzeNow: "Analyze Now",
     removeFile: "Remove file",
     errorGeneric: "We couldn't analyze that document. Please try a clear image or PDF of a USCIS form.",
+    errorNotImmigrationDoc: "Error: please upload a valid USCIS or related document.",
     
     // Mission
     missionTitle: "Why PathFinder Exists",
@@ -33,6 +35,17 @@ export const translations = {
     missionBody2: "This project was born from a deep, personal understanding of the silence and stress. I believe that peace of mind shouldn't be a luxury reserved only for those who can afford expensive legal advise.",
     missionBody3: "I built this app to offer a helping hand to anyone feeling lost in the process. The goal: to ensure that clarity, comfort, and understanding are accessible to everyone, so that no one has to face these documents alone.",
     
+    // FAQ
+    faqTitle: "Frequently Asked Questions & Tips",
+    faqQ1: "PathFinder isn't recognizing my document?",
+    faqA1: "Please try refreshing the page and re-uploading the file. Ensure your photo is well-lit and the text is clear. If it persists, the document type might not be supported yet.",
+    faqQ2: "Is my personal data safe?",
+    faqA2: "Yes. Your documents are processed securely by Google Gemini in memory and are not permanently stored on our servers. We prioritize your privacy.",
+    faqQ3: "Can I use this for legal advice?",
+    faqA3: "No. PathFinder is an informational tool only. It explains documents but cannot provide legal counsel. Always consult an accredited immigration attorney for legal decisions.",
+    faqQ4: "How do I get the best results?",
+    faqA4: "For the best analysis, upload a digital PDF or a photo taken directly from above in bright lighting. Avoid shadows or blurry angles.",
+
     // Footer
     poweredBy: "Powered by Google Gemini. Private & Secure.",
     disclaimer: "PathFinder is an AI assistant, not a lawyer. This is for informational purposes only.",
@@ -110,6 +123,7 @@ export const translations = {
     analyzeNow: "Analizar Ahora",
     removeFile: "Eliminar archivo",
     errorGeneric: "No pudimos analizar ese documento. Intente con una imagen clara o PDF de un formulario de USCIS.",
+    errorNotImmigrationDoc: "Error: por favor suba un documento válido de USCIS o relacionado.",
     
     // Mission
     missionTitle: "¿Por qué existe PathFinder?",
@@ -117,6 +131,17 @@ export const translations = {
     missionBody2: "Este proyecto nació de una comprensión profunda y personal del silencio y el estrés. Creo que la tranquilidad no debería ser un lujo reservado solo para aquellos que pueden pagar costosos consejos legales.",
     missionBody3: "Construí esta aplicación para ofrecer una mano amiga a cualquiera que se sienta perdido en el proceso. El objetivo: asegurar que la claridad, el consuelo y la comprensión sean accesibles para todos, para que nadie tenga que enfrentar estos documentos solo.",
     
+    // FAQ
+    faqTitle: "Preguntas Frecuentes y Consejos",
+    faqQ1: "¿PathFinder no reconoce mi documento?",
+    faqA1: "Intente actualizar la página y volver a subir el archivo. Asegúrese de que la foto tenga buena luz. Si persiste, es posible que el tipo de documento aún no sea compatible.",
+    faqQ2: "¿Están seguros mis datos?",
+    faqA2: "Sí. Sus documentos se procesan de forma segura en la memoria de Google Gemini y no se almacenan permanentemente en nuestros servidores.",
+    faqQ3: "¿Puedo usar esto para asesoría legal?",
+    faqA3: "No. PathFinder es solo una herramienta informativa. No puede brindar asesoramiento legal. Consulte siempre a un abogado de inmigración acreditado.",
+    faqQ4: "¿Cómo obtengo los mejores resultados?",
+    faqA4: "Para un mejor análisis, suba un PDF digital o una foto tomada directamente desde arriba con buena iluminación. Evite sombras o ángulos borrosos.",
+
     // Footer
     poweredBy: "Impulsado por Google Gemini. Privado y Seguro.",
     disclaimer: "PathFinder es un asistente de IA, no un abogado. Esto es solo para fines informativos.",

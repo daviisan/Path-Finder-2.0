@@ -40,19 +40,6 @@ const AnalysisView: React.FC<AnalysisViewProps> = ({ result, onReset, fileData, 
   const chatInitializedRef = useRef(false);
   const currentLangRef = useRef(language);
   
-  // Suggested questions based on language
-  const suggestedQuestions = language === 'es' ? [
-    "¿Cuál es la Fecha de Prioridad?",
-    "¿Quién es el Inmigrante Principal?",
-    "¿Cuáles son los siguientes pasos?",
-    "¿Se requiere una tarifa?"
-  ] : [
-    "What is the Priority Date?",
-    "Who is the Principal Immigrant?",
-    "What are the next steps?",
-    "Is a fee required?"
-  ];
-
   // Helper to detect USCIS forms and create links
   const renderDocumentLink = (docName: string) => {
     // Regex to find patterns like "I-130", "N-400", "Form I-797", etc.
@@ -192,8 +179,24 @@ const AnalysisView: React.FC<AnalysisViewProps> = ({ result, onReset, fileData, 
 
     try {
       const response: GenerateContentResponse = await chatSession.sendMessage({ message: textToSend });
-      const aiText = response.text || "I'm sorry, I couldn't understand that completely.";
       
+      let aiText = "";
+      const candidate = response.candidates?.[0];
+      
+      if (response.text) {
+          aiText = response.text;
+      } else if (candidate) {
+          if (candidate.finishReason === 'SAFETY') {
+              aiText = "I cannot answer that because it flagged a safety filter. This sometimes happens with legal documents mentioning penalties. Please try asking in a simpler way.";
+          } else if (candidate.finishReason === 'RECITATION') {
+               aiText = "I cannot quote that text directly due to copyright limits. I can summarize it instead.";
+          } else {
+              aiText = "I received a response but couldn't understand it (Empty Text). Please try again.";
+          }
+      } else {
+          aiText = "I'm sorry, I couldn't understand that completely (No Candidate).";
+      }
+
       const groundingChunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks;
       const sources: { title: string; uri: string }[] = [];
       
@@ -483,19 +486,6 @@ const AnalysisView: React.FC<AnalysisViewProps> = ({ result, onReset, fileData, 
             {/* Input Area */}
             {!isLiveMode && (
                 <div className="p-4 bg-white border-t border-slate-100">
-                   <div className="flex gap-2 overflow-x-auto pb-3 mb-1 no-scrollbar" role="list">
-                     {suggestedQuestions.map((s, idx) => (
-                       <button 
-                         key={idx}
-                         onClick={() => handleSendMessage(s)}
-                         disabled={isSending}
-                         className="flex-shrink-0 text-xs bg-slate-50 hover:bg-calm-50 text-slate-600 hover:text-calm-700 px-3 py-1.5 rounded-full border border-slate-200 transition-colors whitespace-nowrap focus:outline-none focus:ring-2 focus:ring-calm-500"
-                       >
-                         {s}
-                       </button>
-                     ))}
-                   </div>
-
                    <div className="flex gap-2">
                      <label htmlFor="chatInput" className="sr-only">{t.typeQuestion}</label>
                      <input
@@ -524,7 +514,7 @@ const AnalysisView: React.FC<AnalysisViewProps> = ({ result, onReset, fileData, 
             {/* Live Audio Bar */}
             {isLiveMode && (
               <LiveAudioChat 
-                systemContext={`You are analyzing a ${result.documentType}. Summary: ${result.whatIsThis}. ${t.liveSystemPrompt}`}
+                systemContext={`You are analyzing a ${result.documentType}. Summary: ${result.whatIsThis}. ${t.liveSystemPrompt}. Keep answers short and concise.`}
                 onClose={() => setIsLiveMode(false)}
                 onTranscript={handleLiveTranscript}
               />
